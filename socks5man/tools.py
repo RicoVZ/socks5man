@@ -54,7 +54,6 @@ def verify_all(repeated=False, operational=None, unverified=None):
                     continue
 
             if cfg("bandwidth", "enabled"):
-                print "BLABLA 2"
                 if last_bandwidth:
                     waited = time.time() - last_bandwidth
                     if waited < cfg("socks5man", "bandwidth_interval"):
