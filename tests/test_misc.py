@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import mock
 import os
 import tempfile
@@ -71,7 +72,7 @@ class TestOther(object):
     def test_md5(self):
         fd, path = self.tempfile.mkstemp()
 
-        os.write(fd, "tosti")
+        os.write(fd, b"tosti")
         os.close(fd)
         assert md5(path) == "9e796589d183889f5c65af8b736490bb"
 
@@ -86,7 +87,7 @@ class TestOther(object):
         assert os.path.isfile(mmdb_p)
         version_file = os.path.join(tmpdir, "geodb", ".version")
         assert os.path.isfile(version_file)
-        assert md5(tar_p) == open(version_file, "rb").read()
+        assert md5(tar_p) == open(version_file, "r").read()
         r = geodatabase.Reader(mmdb_p)
         geodata = r.city("8.8.8.8")
         assert geodata.country.name.lower() == "united states"

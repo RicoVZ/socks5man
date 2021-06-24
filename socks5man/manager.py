@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 
 from socks5man.database import Database
@@ -53,7 +54,7 @@ class Manager(object):
             return None
 
     def add(self, host, port, username=None, password=None, dnsport=None,
-            description=None):
+            description=None, private=False):
         """Add a socks5 server.
 
         :param host: IP or a valid hostname of the socks5 server.
@@ -65,6 +66,8 @@ class Manager(object):
         :param dnsport: Port to forward dns requests
             (optional)
         :param description: Description to store with the socks5 server
+            (optional)
+        :param private: IP type, private server
             (optional)
         :return: A dictionary containing the provided information,
             the generated id, the determined country, country code, and city.
@@ -121,13 +124,13 @@ class Manager(object):
             host=host,
             port=port,
             username=username,
-            password=password
+            password=password,
         )
         entry.update(GeoInfo.ipv4info(valid_entry.ip))
         socksid = db.add_socks5(
             entry.host, entry.port, entry.country, entry.country_code,
             city=entry.city, username=entry.username, password=entry.password,
-            dnsport=dnsport, description=description,
+            dnsport=dnsport, description=description, private=private,
         )
 
         entry["id"] = socksid
@@ -190,7 +193,8 @@ class Manager(object):
                 "password": password,
                 "operational": False,
                 "dnsport": entry.get("dnsport"),
-                "description": entry.get("description")
+                "description": entry.get("description"),
+                "private": entry.get("private"),
             }
             new_entry.update(GeoInfo.ipv4info(valid_entry.ip))
             new.append(new_entry)

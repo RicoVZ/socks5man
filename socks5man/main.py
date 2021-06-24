@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import click
 import csv
 import logging
@@ -63,7 +65,8 @@ def verify(repeated, operational, non_operational, unverified):
 @click.option("-u", "--username", help="Username for this socks5 server")
 @click.option("-p", "--password", help="Password for this socks5 server")
 @click.option("-d", "--description", help="Description for this socks5 server")
-def add(host, port, username, password, description):
+@click.option("-pi", "--private", is_flag=True, help="Private server ip")
+def add(host, port, username, password, description, private):
     """Add socks5 server."""
     if username and not password or password and not username:
         log.warning(
@@ -75,7 +78,7 @@ def add(host, port, username, password, description):
     try:
         entry = m.add(
             host, port, username=username, password=password,
-            description=unicode(description)
+            description=description, private=private
         )
     except Socks5manError as e:
         log.error("Failed to add socks5 server: %s", e)
@@ -217,20 +220,22 @@ def list(country, code, city, host, operational, non_operational, count,
         sys.exit(0)
 
     if not export:
-        print(
+        print((
             "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16}{:<16}".format(
                 "ID", "Operational", "Host", "Port", "Country", "Country Code", "City",
                 "Username", "Password", "Description",
             )
-        )
+        ))
         for socks5 in socks5s:
             print(
                 "{:<4} {:<12} {:<20} {:<5} {:<16} {:<12} {:<16} {:<16} {:<16} {:<16}".format(
                     socks5.id, "Yes" if socks5.operational else "No", socks5.host, socks5.port,
                     socks5.country, socks5.country_code, socks5.city,
-                    socks5.username, socks5.password, socks5.description
+                    socks5.username if socks5.username else "", socks5.password if socks5.password else "",
+                    socks5.description if socks5.description else ""
                 )
             )
+
         sys.exit(0)
 
     if os.path.exists(export):
@@ -243,10 +248,10 @@ def list(country, code, city, host, operational, non_operational, count,
         for socks5 in socks5s:
             socks5_d = socks5.to_dict()
             if header:
-                csv_w.writerow(socks5_d.keys())
+                csv_w.writerow(list(socks5_d.keys()))
                 header = False
 
-            csv_w.writerow(socks5_d.values())
+            csv_w.writerow(list(socks5_d.values()))
 
 
 @main.command()

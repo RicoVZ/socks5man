@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import datetime
 import mock
 import socket
@@ -72,7 +73,7 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify(self, mg):
         create_cwd(cwd())
-        mg.return_value = "8.8.8.8"
+        mg.return_value = b"8.8.8.8"
         self.db.add_socks5(
             "8.8.8.8", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
@@ -106,11 +107,11 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify_private(self, mg):
         create_cwd(cwd())
-        mg.return_value = "8.8.8.8"
+        mg.return_value = b"8.8.8.8"
         self.db.add_socks5(
             "192.168.0.50", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
-            password="wow", description="Such wow, many socks5"
+            password="wow", description="Such wow, many socks5",
         )
         db_socks5 = self.db.view_socks5(1)
         s = Socks5(db_socks5)
@@ -121,7 +122,7 @@ class TestSocks5(object):
     @mock.patch("socks5man.socks5.get_over_socks5")
     def test_verify_hostname(self, mg):
         create_cwd(cwd())
-        mg.return_value = "93.184.216.34"
+        mg.return_value = b"93.184.216.34"
         self.db.add_socks5(
             "example.com", 1337, "germany", "DE",
             city="Frankfurt", operational=False, username="doge",
@@ -218,15 +219,15 @@ class TestSocks5(object):
         s = self.db.view_socks5(1)
         socks5 = Socks5(s)
         d = socks5.to_dict()
-        assert d["host"] == "example.com"
+        assert d["host"] == b"example.com"
         assert d["port"] == 1337
-        assert d["country"] == "germany"
-        assert d["country_code"] == "DE"
-        assert d["city"] == "Frankfurt"
+        assert d["country"] == b"germany"
+        assert d["country_code"] == b"DE"
+        assert d["city"] == b"Frankfurt"
         assert not d["operational"]
-        assert d["username"] == "doge"
-        assert d["password"] == "wow"
-        assert d["description"] == "Such wow, many socks5"
+        assert d["username"] == b"doge"
+        assert d["password"] == b"wow"
+        assert d["description"] == b"Such wow, many socks5"
         assert d["added_on"] == socks5.added_on.strftime("%Y-%m-%d %H:%M:%S")
 
     def test_repr(self):
@@ -254,3 +255,4 @@ class TestSocks5(object):
             assert "win_inet_pton" in sys.modules
         else:
             assert "win_inet_pton" not in sys.modules
+

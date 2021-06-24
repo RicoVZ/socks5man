@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 import os
 from datetime import datetime
@@ -45,12 +46,14 @@ class Socks5(Base):
     connect_time = Column(Float(), nullable=True)
     description = Column(Text(), nullable=True)
     dnsport = Column(Integer(), nullable=True)
+    private = Column(Boolean, nullable=True)
 
-    def __init__(self, host, port, country, country_code):
+    def __init__(self, host, port, country, country_code, private):
         self.host = host
         self.port = port
         self.country = country
         self.country_code = country_code
+        self.private = private
 
     def to_dict(self):
         """Converts object to dict.
@@ -62,7 +65,7 @@ class Socks5(Base):
             value = getattr(self, column.name)
             if isinstance(value, datetime):
                 socks_dict[column.name] = value.strftime("%Y-%m-%d %H:%M:%S")
-            elif isinstance(value, (str, basestring)):
+            elif isinstance(value, str):
                 socks_dict[column.name] = value.encode("utf-8")
             else:
                 socks_dict[column.name] = value
@@ -77,9 +80,7 @@ class Socks5(Base):
         )
 
 
-class Database(object):
-
-    __metaclass__ = Singleton
+class Database(object, metaclass=Singleton):
 
     def __init__(self):
         self.connect(create=True)
@@ -117,9 +118,9 @@ class Database(object):
             ses.close()
 
     def add_socks5(self, host, port, country, country_code, operational=False,
-                   city=None, username=None, password=None, dnsport=None, description=None):
+                   city=None, username=None, password=None, dnsport=None, description=None, private=False):
         """Add new socks5 server to the database"""
-        socks5 = Socks5(host, port, country, country_code)
+        socks5 = Socks5(host, port, country, country_code, private)
         socks5.operational = operational
         socks5.city = city
         socks5.username = username
@@ -381,7 +382,7 @@ class Database(object):
         @param ids_list: A list of socks5 ids to delete"""
         chunk = 100
         try:
-            for c in xrange(0, len(ids_list), chunk):
+            for c in range(0, len(ids_list), chunk):
                 self.engine.execute(
                     Socks5.__table__.delete().where(
                         Socks5.id.in_(ids_list[c:c+chunk])

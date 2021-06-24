@@ -19,6 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
+from __future__ import absolute_import
 project = u'Socks5man'
 copyright = u'2016-2018'
 author = u'Ricardo van Zutphen'

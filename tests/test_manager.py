@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import datetime
 import pytest
 
@@ -8,6 +9,7 @@ from socks5man.misc import set_cwd, create_cwd, cwd
 from socks5man.socks5 import Socks5
 
 from tests.helpers import CleanedTempFile
+from six.moves import range
 
 class TestManager(object):
 

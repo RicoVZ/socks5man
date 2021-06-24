@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import mock
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from socks5man.helpers import (
     Dictionary, is_ipv4, is_reserved_ipv4, GeoInfo, get_ipv4_hostname,
@@ -134,7 +135,7 @@ def test_validify_host_port():
     assert res11 is None
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("urllib.request.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5(ms, mu, mss):
     mss.socket = "DOGE"
@@ -152,16 +153,16 @@ def test_get_over_socks5(ms, mu, mss):
     )
     mu.assert_called_once_with("http://example.com", timeout=10)
     assert res == "many content, such wow"
-    assert mss.socket == "socket"
+    assert mss.socket == "DOGE"
 
 @mock.patch("socks5man.helpers.socket")
-@mock.patch("urllib2.urlopen")
+@mock.patch("urllib.request.urlopen")
 @mock.patch("socks5man.helpers.socks")
 def test_get_over_socks5_fail(ms, mu, mss):
     mss.socket = "DOGE"
     mss._socketobject = "socket"
     httpresponse = mock.MagicMock()
-    httpresponse.read.side_effect = urllib2.URLError("Error")
+    httpresponse.read.side_effect = urllib.error.URLError("Error")
     mu.return_value = httpresponse
     ms.socksocket = "socksocket"
     res = get_over_socks5(
@@ -169,7 +170,7 @@ def test_get_over_socks5_fail(ms, mu, mss):
         password="doge", timeout=10
     )
     assert res is None
-    assert mss.socket == "socket"
+    assert mss.socket == "DOGE"
 
 @mock.patch("time.time")
 @mock.patch("socks5man.helpers.cfg")
@@ -266,3 +267,4 @@ def test_approximate_bandwidth_failed(mg, mc, mt):
         times=2, maxfail=1
     )
     assert speed is None
+

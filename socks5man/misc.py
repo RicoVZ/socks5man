@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import hashlib
 import os
 import shutil
@@ -48,7 +49,7 @@ def unpack_mmdb(tarpath, to):
                 break
 
     geodb_hash = md5(tarpath)
-    with open(cwd("geodb", ".version"), "wb") as fw:
+    with open(cwd("geodb", ".version"), "w") as fw:
         fw.write(geodb_hash)
 
 def set_cwd(path):
