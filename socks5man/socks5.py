@@ -1,5 +1,5 @@
+from __future__ import absolute_import
 import logging
-import socket
 import socks
 import sys
 import time
@@ -43,20 +43,23 @@ class Socks5(object):
         if not is_ipv4(ip):
             ip = get_ipv4_hostname(ip)
 
-        response = get_over_socks5(
-            cfg("operationality", "ip_api"), self.host, self.port,
-            username=self.username, password=self.password,
-            timeout=cfg("operationality", "timeout")
-        )
+        try:
+            response = get_over_socks5(
+                cfg("operationality", "ip_api"), self.host, self.port,
+                username=self.username, password=self.password,
+                timeout=cfg("operationality", "timeout")
+            )
+        except AttributeError:
+            return operational
 
         if response:
-            if ip == response:
+            if ip == response.decode("utf-8"):
                 operational = True
 
             # If a private ip is used, the api response will not match with
             # the configured host or its ip. There was however a response,
             # therefore we still mark it as operational
-            elif is_reserved_ipv4(ip) and is_ipv4(response):
+            elif self.private or (is_reserved_ipv4(ip) and is_ipv4(response.decode("utf-8"))):
                 operational = True
 
         db.set_operational(self.id, operational)
@@ -102,7 +105,8 @@ class Socks5(object):
                     cfg("connection_time", "port")
             ))
             s.close()
-        except (socks.ProxyError, socket.error) as e:
+        # socket.error, socks.ProxyError
+        except Exception as e:
             log.error("Error connecting in connection time test: %s", e)
             connect_time = None
         else:
@@ -137,7 +141,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.host:
-            return self.db_socks5.host.encode("utf-8")
+            return self.db_socks5.host
         return None
 
     @property
@@ -157,7 +161,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.country:
-            return self.db_socks5.country.encode("utf-8")
+            return self.db_socks5.country
         return None
 
     @property
@@ -178,7 +182,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.city:
-            return self.db_socks5.city.encode("utf-8")
+            return self.db_socks5.city
         return None
 
     @property
@@ -189,7 +193,7 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.username:
-            return self.db_socks5.username.encode("utf-8")
+            return self.db_socks5.username
         return None
 
     @property
@@ -266,8 +270,18 @@ class Socks5(object):
         :rtype: str
         """
         if self.db_socks5.description:
-            return self.db_socks5.description.encode("utf-8")
+            return self.db_socks5.description
         return None
+
+    @property
+    def private(self):
+        """
+        Boolean that tells if the server is private ip.
+
+        :rtype: bool
+        """
+        return self.db_socks5.private
+
 
     def __repr__(self):
         return "<Socks5(host=%s, port=%s, country=%s, authenticated=%s)>" % (

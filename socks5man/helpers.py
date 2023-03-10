@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 import logging
 import socket
 import socks
 import struct
 import time
-import urllib2
+import urllib.request
+import urllib.error
 
 from socks5man.config import cfg
 from socks5man.constants import IANA_RESERVERD_IPV4_RANGES
@@ -48,6 +50,8 @@ def is_ipv4(ip):
     """Try to parse string as Ipv4. Return True if success, False
     otherwise"""
     try:
+        if not isinstance(ip, type(str)):
+            ip = str(ip)
         socket.inet_aton(ip)
         return True
     except socket.error:
@@ -125,19 +129,18 @@ def validify_host_port(host, port):
 
 def get_over_socks5(url, host, port, username=None, password=None, timeout=3):
     """Make a HTTP GET request over socks5 of the given URL"""
-    socks.set_default_proxy(
-        socks.SOCKS5, host, port,
-        username=username, password=password
-    )
+
+    socks.set_default_proxy(socks.SOCKS5, host, port, username=username, password=password)
 
     response = None
+    clean_socket = socket.socket
     try:
         socket.socket = socks.socksocket
-        response = urllib2.urlopen(url, timeout=timeout).read()
-    except (socket.error, urllib2.URLError, socks.ProxyError) as e:
+        response = urllib.request.urlopen(url, timeout=timeout).read()
+    except urllib.error.URLError as e:
         log.error("Error making HTTP GET over socks5: %s", e)
     finally:
-        socket.socket = socket._socketobject
+        socket.socket = clean_socket
     return response
 
 def approximate_bandwidth(host, port, username=None, password=None,

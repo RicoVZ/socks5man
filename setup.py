@@ -1,17 +1,10 @@
-import sys
+from __future__ import absolute_import
 
 from setuptools import setup
 
-if sys.version[0] != "2":
-    sys.exit(
-        "Socks5man currently only supports Python 2.7. 3.5+ is on the roadmap"
-        ", but is not supported yet. For now, please install it in the"
-        " following way: `pip2 install -U socks5man`."
-    )
-
 setup(
     name="Socks5man",
-    version="0.2.0",
+    version="0.3.0",
     author="Ricardo van Zutphen",
     author_email="ricardo@hatching.io",
     packages=[
@@ -37,11 +30,11 @@ setup(
     ],
     license="GPLv3",
     description="SOCKS5 server management tool and library",
-    long_description=open("README.rst", "rb").read(),
+    long_description=open("README.md", "r").read(),
     include_package_data=True,
     url="https://github.com/RicoVZ/socks5man",
     install_requires=[r.strip() for r in open("requirements.txt", "r").readlines()],
-    python_requires=">=2.7, <3.0",
+    python_requires=">=3.6",
     extras_require={
         ":sys_platform == 'win32'": [
             "win-inet-pton==1.0.1",

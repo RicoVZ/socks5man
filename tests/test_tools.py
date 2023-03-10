@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import mock
 import socket
 
@@ -82,7 +83,7 @@ class TestVerifyAll(object):
         socks5.approx_bandwidth.assert_not_called()
         Config._cache["bandwidth"]["enabled"] = False
 
-    @mock.patch("socks5man.tools.urllib2.urlopen")
+    @mock.patch("socks5man.tools.urllib.request.urlopen")
     @mock.patch("socks5man.tools.Socks5")
     def test_download_verify_fail(self, ms, mu):
         create_cwd(cwd())

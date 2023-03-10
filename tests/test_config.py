@@ -1,5 +1,6 @@
-import copy
+from __future__ import absolute_import
 import os
+import copy
 import pytest
 
 from socks5man.config import Config, cfg, confbool
@@ -8,6 +9,7 @@ from socks5man.exceptions import Socks5ConfigError
 from socks5man.misc import set_cwd, create_cwd, cwd
 
 from tests.helpers import CleanedTempFile
+
 
 class TestConfig(object):
 
@@ -31,18 +33,18 @@ class TestConfig(object):
         create_cwd(cwd())
         assert isinstance(cfg("socks5man", "verify_interval"), int)
         assert isinstance(cfg("socks5man", "bandwidth_interval"), int)
-        assert isinstance(cfg("operationality", "ip_api"), (str, basestring))
+        assert isinstance(cfg("operationality", "ip_api"), (str))
         assert isinstance(cfg("operationality", "timeout"), int)
         assert isinstance(cfg("connection_time", "enabled"), bool)
         assert isinstance(cfg("connection_time", "timeout"), int)
-        assert isinstance(cfg("connection_time", "hostname"),(str, basestring))
+        assert isinstance(cfg("connection_time", "hostname"), (str))
         assert isinstance(cfg("connection_time", "port"), int)
         assert isinstance(cfg("bandwidth", "enabled"), bool)
-        assert isinstance(cfg("bandwidth", "download_url"), (str, basestring))
+        assert isinstance(cfg("bandwidth", "download_url"), (str))
         assert isinstance(cfg("bandwidth", "times"), int)
         assert isinstance(cfg("bandwidth", "timeout"), int)
-        assert isinstance(cfg("geodb", "geodb_url"), (str, basestring))
-        assert isinstance(cfg("geodb", "geodb_md5_url"), (str, basestring))
+        assert isinstance(cfg("geodb", "geodb_url"), (str))
+        assert isinstance(cfg("geodb", "geodb_md5_url"), (str))
 
     def test_cfg_values(self):
         create_cwd(cwd())
@@ -76,8 +78,8 @@ class TestConfig(object):
     def test_invalid_conf(self):
         create_cwd(cwd())
         Config._cache = {}
-        with open(cwd("conf", "socks5man.conf"), "wb") as fw:
-            fw.write(os.urandom(512))
+        with open(cwd("conf", "socks5man.conf"), "w") as fw:
+            fw.write("socks5man to dominate them all")
         with pytest.raises(Socks5ConfigError):
             cfg("socks5man", "verify_interval")
 
