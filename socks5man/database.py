@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     Column, Integer, String, DateTime, Boolean, Text, create_engine,
-    Float, and_, func
+    Float, and_, func, inspect
 )
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
@@ -91,9 +91,7 @@ class Database(object, metaclass=Singleton):
         if create:
             if not os.path.exists(cwd("socks5man.db")):
                 self._create()
-            elif not self.engine.dialect.has_table(
-                    self.engine, AlembicVersion.__tablename__
-            ):
+            elif not inspect(self.engine).has_table(AlembicVersion.__tablename__):
                 AlembicVersion.__table__.create(self.engine)
 
     def _create(self):
